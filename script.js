@@ -80,7 +80,7 @@ function checkAnswer(selectedIndex) {
 
   const currentQuestion = questions[currentQuestionIndex];
 
-  if (selectedIndex === currentQuestion.correctAnswer) {
+  if (selectedIndex === currentQuestion.correct) {
     // Nếu người chơi trả lời đúng -> Cộng 25 điểm cho câu hỏi này
     score += pointsPerQuestion;
     showNotification(`Đúng! +${pointsPerQuestion} điểm`, 'success');
