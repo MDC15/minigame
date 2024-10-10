@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Arial', sans-serif;
-    /* background-color: #f0f0f0; */
+    background-color: #f0f0f0;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -14,12 +14,6 @@ body {
     font-size: 18px;
     color: #333;
     /* Màu chữ tối hơn, dễ nhìn hơn */
-    background-image: url(https://www.haui.edu.vn//media/73/t73821.jpg);
-    background-repeat: no-repeat;
-    background-size: 55%;
-    background-position: center;
-    background-clip: border-box;
-    background-origin: border-box;
 }
 
 .screen {
