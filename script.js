@@ -45,27 +45,7 @@ function loadQuestion() {
   questionText.innerText = currentQuestion.question;
   answerButtons.forEach((button, index) => {
     button.innerText = currentQuestion.answers[index];
-    button.onclick = () => checkAnswer(index);
-  });
-  resetTimer();
-}
-
-// Check Answer
-function checkAnswer(selectedIndex) {
-  const correctIndex = questions[currentQuestionIndex].correct;
-  if (selectedIndex === correctIndex) {
-    totalCorrectAnswers++;
-    showNotification('Chính xác!', 'success');
-  } else {
-    showNotification("Sai rồi!", 'error');
-  }
-  updateScore();
-  nextQuestion();
-}
-
-// Update Score
-function updateScore() {
-  score = Math.round((totalCorrectAnswers / questions.length) * 100);
+ 20);
   scoreDisplay.innerText = score;
 }
 
