@@ -53,8 +53,9 @@ function checkAnswer(questions, selectedIndex) {
   const correctIndex = questions[currentQuestionIndex].correct;
   if (selectedIndex === correctIndex) {
     score += basePoints;
+    // Award bonus points only if timeLeft is greater than 25 seconds
     if (timeLeft > 25) {
-      const bonusPoints = Math.floor(Math.random() * 5);
+      const bonusPoints = 25);
       score += bonusPoints;
       showNotification(`Chính xác! Bạn nhận được ${basePoints + bonusPoints} điểm.`, 'success');
     } else {
