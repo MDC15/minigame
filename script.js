@@ -15,17 +15,18 @@ const restartButton = document.getElementById('restart-btn');
 // Game Variables
 let currentQuestionIndex = 0;
 let score = 0;
-let timeLeft = 30;
+let timeLeft = 0;
 let timer;
-let maxScore = 100; // Giới hạn điểm tối đa
-let questions = []; // Store questions data here
+let maxScore = 100; // Tổng điểm tối đa
+let questions = []; // Dữ liệu câu hỏi từ file JSON
+let questionTimeLimit = 15; // Thời gian tối đa cho mỗi câu hỏi là 15 giây
+let maxQuestionPoints = 10; // Mỗi câu hỏi tối đa 10 điểm
 
 // Load Questions from JSON
 fetch('questions.json')
   .then(response => response.json())
   .then(data => {
     questions = data;
-    // Event Listeners
     startButton.addEventListener('click', startGame);
     restartButton.addEventListener('click', restartGame);
   });
@@ -35,76 +36,82 @@ function startGame() {
   score = 0;
   currentQuestionIndex = 0;
   scoreDisplay.innerText = score;
-  timeLeft = 30; // Khởi tạo lại thời gian cho mỗi trò chơi
-  startTimer(); // Bắt đầu đếm ngược thời gian
   showScreen(gameScreen);
   loadQuestion();
 }
 
-// Timer countdown
+// Start timer for a question
 function startTimer() {
-  clearInterval(timer); // Đảm bảo không có đồng hồ đếm ngược cũ nào chạy
+  clearInterval(timer);
+  timeLeft = questionTimeLimit;
+  timeDisplay.innerText = timeLeft;
+
   timer = setInterval(() => {
     timeLeft--;
     timeDisplay.innerText = timeLeft;
+
     if (timeLeft <= 0) {
       clearInterval(timer);
-      endGame();
+      checkAnswer(-1); // Người chơi không trả lời được
     }
   }, 1000);
 }
 
-// Load Question
+// Load the current question
 function loadQuestion() {
   if (currentQuestionIndex < questions.length) {
     const currentQuestion = questions[currentQuestionIndex];
     questionText.innerText = currentQuestion.question;
+
     answerButtons.forEach((button, index) => {
       button.innerText = currentQuestion.answers[index];
       button.onclick = () => checkAnswer(index);
     });
+
+    // Bắt đầu đếm thời gian cho câu hỏi
+    startTimer();
   } else {
     endGame(); // Kết thúc trò chơi khi hết câu hỏi
   }
 }
 
-// Check Answer
+// Check Answer and calculate score
 function checkAnswer(selectedIndex) {
+  clearInterval(timer);
+
   const currentQuestion = questions[currentQuestionIndex];
+
   if (selectedIndex === currentQuestion.correctAnswer) {
-    score++;
-    showNotification('Đúng!', 'success');
+    // Người chơi trả lời đúng -> Tính điểm dựa trên thời gian còn lại
+    let pointsEarned = (timeLeft / questionTimeLimit) * maxQuestionPoints;
+    score += pointsEarned;
+    showNotification(`Đúng! +${Math.round(pointsEarned)} điểm`, 'success');
   } else {
-    showNotification('Sai!', 'error');
+    // Người chơi trả lời sai
+    showNotification('Sai! Không có điểm.', 'error');
   }
+
+  // Cập nhật điểm hiển thị
+  scoreDisplay.innerText = Math.round(score);
+
+  // Chuyển sang câu hỏi tiếp theo
   currentQuestionIndex++;
-  loadQuestion(); // Load câu hỏi tiếp theo
+  loadQuestion();
 }
 
-// Tính toán điểm cuối cùng dựa trên số câu trả lời đúng và thời gian còn lại
-function calculateFinalScore() {
-  const correctAnswersScore = (score / questions.length) * maxScore * 0.7; // 70% của tổng điểm từ câu trả lời đúng
-  const timeBonus = (timeLeft / 30) * maxScore * 0.3; // 30% của tổng điểm từ thời gian còn lại
-
-  let finalScore = correctAnswersScore + timeBonus;
-
-  // Đảm bảo điểm không vượt quá 100
-  if (finalScore > maxScore) {
-    finalScore = maxScore;
-  }
-
-  return Math.round(finalScore); // Trả về số điểm làm tròn
-}
-
-// End Game
+// End game and display the final score
 function endGame() {
   clearInterval(timer);
-  const finalScore = calculateFinalScore();
+
+  // Điểm cuối cùng
+  let finalScore = Math.min(Math.round(score), maxScore); // Đảm bảo điểm không vượt quá 100
+
   if (finalScore === 100) {
-    finalScoreDisplay.innerText = "Bạn đã hoàn thành trò chơi với điểm tuyệt đối!";
+    finalScoreDisplay.innerText = "Xuất sắc! Bạn đã đạt 100 điểm!";
   } else {
-    finalScoreDisplay.innerText = `Điểm của bạn: ${finalScore}`;
+    finalScoreDisplay.innerText = `Điểm cuối cùng của bạn: ${finalScore}`;
   }
+
   showScreen(endScreen);
 }
 
@@ -129,5 +136,5 @@ function showNotification(message, type) {
   setTimeout(() => {
     notification.classList.remove('active');
     notification.classList.remove(type);
-  }, 2500);
+  }, 2000);
 }
