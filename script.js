@@ -56,7 +56,8 @@ function checkAnswer(selectedIndex) {
   if (selectedIndex === correctIndex) {
     // Calculate random points based on remaining time
     let points = Math.round((timeLeft / 30) * 100); // Higher points for faster answers
-    points = Math.min(points, 100); // Limit points to 100
+    // Ensure points don't exceed 100
+    points = Math.min(points, 100 - score); // Adjust points to ensure total score doesn't exceed 100
     score += points;
     showNotification(
       `Chính xác! Bạn nhận được ${points} điểm.`,
