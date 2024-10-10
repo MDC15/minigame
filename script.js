@@ -15,12 +15,11 @@ const restartButton = document.getElementById('restart-btn');
 // Game Variables
 let currentQuestionIndex = 0;
 let score = 0;
-let timeLeft = 0;
+let timeLeft = 15; // thời gian cho mỗi câu hỏi
 let timer;
-let maxScore = 100; // Tổng điểm tối đa
 let questions = []; // Dữ liệu câu hỏi từ file JSON
-let questionTimeLimit = 15; // Thời gian tối đa cho mỗi câu hỏi là 15 giây
-let maxQuestionPoints = 10; // Mỗi câu hỏi tối đa 10 điểm
+let maxScore = 100; // Tổng điểm tối đa
+let pointsPerQuestion = 25; // Mỗi câu hỏi sẽ được 25 điểm nếu trả lời đúng (100 điểm chia đều cho 4 câu)
 
 // Load Questions from JSON
 fetch('questions.json')
@@ -40,10 +39,10 @@ function startGame() {
   loadQuestion();
 }
 
-// Start timer for a question
+// Start timer for each question
 function startTimer() {
   clearInterval(timer);
-  timeLeft = questionTimeLimit;
+  timeLeft = 15;
   timeDisplay.innerText = timeLeft;
 
   timer = setInterval(() => {
@@ -82,17 +81,16 @@ function checkAnswer(selectedIndex) {
   const currentQuestion = questions[currentQuestionIndex];
 
   if (selectedIndex === currentQuestion.correctAnswer) {
-    // Người chơi trả lời đúng -> Tính điểm dựa trên thời gian còn lại
-    let pointsEarned = (timeLeft / questionTimeLimit) * maxQuestionPoints;
-    score += pointsEarned;
-    showNotification(`Đúng! +${Math.round(pointsEarned)} điểm`, 'success');
+    // Nếu người chơi trả lời đúng -> Cộng 25 điểm cho câu hỏi này
+    score += pointsPerQuestion;
+    showNotification(`Đúng! +${pointsPerQuestion} điểm`, 'success');
   } else {
-    // Người chơi trả lời sai
+    // Nếu người chơi trả lời sai
     showNotification('Sai! Không có điểm.', 'error');
   }
 
   // Cập nhật điểm hiển thị
-  scoreDisplay.innerText = Math.round(score);
+  scoreDisplay.innerText = score;
 
   // Chuyển sang câu hỏi tiếp theo
   currentQuestionIndex++;
@@ -104,7 +102,7 @@ function endGame() {
   clearInterval(timer);
 
   // Điểm cuối cùng
-  let finalScore = Math.min(Math.round(score), maxScore); // Đảm bảo điểm không vượt quá 100
+  let finalScore = Math.min(score, maxScore); // Đảm bảo điểm không vượt quá 100
 
   if (finalScore === 100) {
     finalScoreDisplay.innerText = "Xuất sắc! Bạn đã đạt 100 điểm!";
