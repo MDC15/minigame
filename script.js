@@ -5,7 +5,6 @@ const timeDisplay = document.getElementById('time-left');
 const scoreDisplay = document.getElementById('score');
 const finalScoreDisplay = document.getElementById('final-score');
 const notification = document.getElementById('notification');
-
 const startScreen = document.getElementById('start-screen');
 const gameScreen = document.getElementById('game-screen');
 const endScreen = document.getElementById('end-screen');
@@ -17,8 +16,8 @@ let currentQuestionIndex = 0;
 let score = 0;
 let timeLeft = 30;
 let timer;
-
-let questions = []; // Store questions data here
+let questions = [];
+let totalCorrectAnswers = 0;
 
 // Load Questions from JSON
 fetch('questions.json')
@@ -34,6 +33,7 @@ fetch('questions.json')
 function startGame() {
   score = 0;
   currentQuestionIndex = 0;
+  totalCorrectAnswers = 0;
   scoreDisplay.innerText = score;
   showScreen(gameScreen);
   loadQuestion();
@@ -54,20 +54,19 @@ function loadQuestion() {
 function checkAnswer(selectedIndex) {
   const correctIndex = questions[currentQuestionIndex].correct;
   if (selectedIndex === correctIndex) {
-    // Calculate random points based on remaining time
-    let points = Math.round((timeLeft / 30) * 100); // Higher points for faster answers
-    // Ensure points don't exceed 100
-    points = Math.min(points, 100 - score); // Adjust points to ensure total score doesn't exceed 100
-    score += points;
-    showNotification(
-      `Chính xác! Bạn nhận được ${points} điểm.`,
-      'success'
-    );
-    scoreDisplay.innerText = score;
+    totalCorrectAnswers++;
+    showNotification('Chính xác!', 'success');
   } else {
     showNotification("Sai rồi!", 'error');
   }
+  updateScore();
   nextQuestion();
+}
+
+// Update Score
+function updateScore() {
+  score = Math.round((totalCorrectAnswers / questions.length) * 100);
+  scoreDisplay.innerText = score;
 }
 
 // Next Question or End Game
@@ -99,9 +98,8 @@ function resetTimer() {
 // End Game
 function endGame() {
   clearInterval(timer);
-
-  // Check if all questions are answered correctly
-  if (score === questions.length * 100) {
+  updateScore(); // Ensure final score is calculated
+  if (score === 100) {
     finalScoreDisplay.innerText = "Bạn đã hoàn thành trò chơi với điểm tuyệt đối!";
   } else {
     finalScoreDisplay.innerText = `Điểm của bạn: ${score}`;
