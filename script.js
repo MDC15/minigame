@@ -17,7 +17,6 @@ let currentQuestionIndex = 0;
 let score = 0;
 let timeLeft = 30;
 let timer;
-let basePoints = 50; // Điểm cơ bản cho mỗi câu (50/100)
 
 let questions = []; // Store questions data here
 
@@ -55,13 +54,14 @@ function loadQuestion() {
 function checkAnswer(selectedIndex) {
   const correctIndex = questions[currentQuestionIndex].correct;
   if (selectedIndex === correctIndex) {
-    if (timeLeft > 15) { // Kiểm tra thời gian trả lời
-      score += 100; // Nếu trả lời đúng trong vòng 15 giây, được 100 điểm
-      showNotification("Chính xác! Bạn nhận được 100 điểm.", 'success');
-    } else {
-      score += basePoints; // Nếu trả lời đúng sau 15 giây, được điểm cơ bản
-      showNotification(`Chính xác! Bạn nhận được ${basePoints} điểm.`, 'success');
-    }
+    // Calculate random points based on remaining time
+    let points = Math.round((timeLeft / 30) * 100); // Higher points for faster answers
+    points = Math.min(points, 100); // Limit points to 100
+    score += points;
+    showNotification(
+      `Chính xác! Bạn nhận được ${points} điểm.`,
+      'success'
+    );
     scoreDisplay.innerText = score;
   } else {
     showNotification("Sai rồi!", 'error');
@@ -98,7 +98,13 @@ function resetTimer() {
 // End Game
 function endGame() {
   clearInterval(timer);
-  finalScoreDisplay.innerText = score;
+
+  // Check if all questions are answered correctly
+  if (score === questions.length * 100) {
+    finalScoreDisplay.innerText = "Bạn đã hoàn thành trò chơi với điểm tuyệt đối!";
+  } else {
+    finalScoreDisplay.innerText = `Điểm của bạn: ${score}`;
+  }
   showScreen(endScreen);
 }
 
