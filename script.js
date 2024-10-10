@@ -17,7 +17,7 @@ let currentQuestionIndex = 0;
 let score = 0;
 let timeLeft = 30;
 let timer;
-let basePoints = 80; // Điểm cơ bản cho mỗi câu (80/100)
+let basePoints = 50; // Điểm cơ bản cho mỗi câu (50/100)
 
 let questions = []; // Store questions data here
 
@@ -55,27 +55,18 @@ function loadQuestion() {
 function checkAnswer(selectedIndex) {
   const correctIndex = questions[currentQuestionIndex].correct;
   if (selectedIndex === correctIndex) {
-    score += basePoints; // Add base points
-    const timeBonus = calculateTimeBonus(timeLeft); // Calculate time bonus
-    score += timeBonus; // Add time bonus
-    showNotification(
-      `Chính xác! Bạn nhận được ${basePoints + timeBonus} điểm.`,
-      'success'
-    );
+    if (timeLeft > 15) { // Kiểm tra thời gian trả lời
+      score += 100; // Nếu trả lời đúng trong vòng 15 giây, được 100 điểm
+      showNotification("Chính xác! Bạn nhận được 100 điểm.", 'success');
+    } else {
+      score += basePoints; // Nếu trả lời đúng sau 15 giây, được điểm cơ bản
+      showNotification(`Chính xác! Bạn nhận được ${basePoints} điểm.`, 'success');
+    }
     scoreDisplay.innerText = score;
   } else {
     showNotification("Sai rồi!", 'error');
   }
   nextQuestion();
-}
-
-// Calculate Time Bonus
-function calculateTimeBonus(timeRemaining) {
-  // Time bonus is calculated based on the percentage of remaining time
-  const maxBonus = 20; // Maximum bonus points (20/100)
-  const timePercentage = (timeRemaining / 30) * 100; // Time used as a percentage
-  const bonus = Math.round((maxBonus * timePercentage) / 100); // Calculate bonus based on percentage
-  return bonus;
 }
 
 // Next Question or End Game
