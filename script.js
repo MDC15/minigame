@@ -17,8 +17,7 @@ let currentQuestionIndex = 0;
 let score = 0;
 let timeLeft = 30;
 let timer;
-let maxScore = 100; // Maximum possible score
-let timeBonusFactor = 0.5; // Bonus factor for time
+let maxScore = 100; // Giới hạn điểm tối đa
 let questions = []; // Store questions data here
 
 // Load Questions from JSON
@@ -35,47 +34,16 @@ fetch('questions.json')
 function startGame() {
   score = 0;
   currentQuestionIndex = 0;
-  timeLeft = 30;
   scoreDisplay.innerText = score;
-  timeDisplay.innerText = timeLeft;
+  timeLeft = 30; // Khởi tạo lại thời gian cho mỗi trò chơi
+  startTimer(); // Bắt đầu đếm ngược thời gian
   showScreen(gameScreen);
   loadQuestion();
-  startTimer();
 }
 
-// Load Question
-function loadQuestion() {
-  const currentQuestion = questions[currentQuestionIndex];
-  questionText.innerText = currentQuestion.question;
-
-  // Clear previous answer buttons and load new ones
-  answerButtons.forEach((button, index) => {
-    button.innerText = currentQuestion.answers[index];
-    button.onclick = () => checkAnswer(currentQuestion.correctAnswer, index);
-  });
-}
-
-// Check Answer
-function checkAnswer(correctAnswer, selectedAnswer) {
-  if (selectedAnswer === correctAnswer) {
-    score++;
-    scoreDisplay.innerText = score;
-    showNotification("Correct!", "success");
-  } else {
-    showNotification("Wrong answer", "error");
-  }
-
-  // Move to the next question
-  currentQuestionIndex++;
-  if (currentQuestionIndex < questions.length) {
-    loadQuestion();
-  } else {
-    endGame();
-  }
-}
-
-// Timer Function
+// Timer countdown
 function startTimer() {
+  clearInterval(timer); // Đảm bảo không có đồng hồ đếm ngược cũ nào chạy
   timer = setInterval(() => {
     timeLeft--;
     timeDisplay.innerText = timeLeft;
@@ -86,31 +54,57 @@ function startTimer() {
   }, 1000);
 }
 
+// Load Question
+function loadQuestion() {
+  if (currentQuestionIndex < questions.length) {
+    const currentQuestion = questions[currentQuestionIndex];
+    questionText.innerText = currentQuestion.question;
+    answerButtons.forEach((button, index) => {
+      button.innerText = currentQuestion.answers[index];
+      button.onclick = () => checkAnswer(index);
+    });
+  } else {
+    endGame(); // Kết thúc trò chơi khi hết câu hỏi
+  }
+}
+
+// Check Answer
+function checkAnswer(selectedIndex) {
+  const currentQuestion = questions[currentQuestionIndex];
+  if (selectedIndex === currentQuestion.correctAnswer) {
+    score++;
+    showNotification('Đúng!', 'success');
+  } else {
+    showNotification('Sai!', 'error');
+  }
+  currentQuestionIndex++;
+  loadQuestion(); // Load câu hỏi tiếp theo
+}
+
+// Tính toán điểm cuối cùng dựa trên số câu trả lời đúng và thời gian còn lại
+function calculateFinalScore() {
+  const correctAnswersScore = (score / questions.length) * maxScore * 0.7; // 70% của tổng điểm từ câu trả lời đúng
+  const timeBonus = (timeLeft / 30) * maxScore * 0.3; // 30% của tổng điểm từ thời gian còn lại
+
+  let finalScore = correctAnswersScore + timeBonus;
+
+  // Đảm bảo điểm không vượt quá 100
+  if (finalScore > maxScore) {
+    finalScore = maxScore;
+  }
+
+  return Math.round(finalScore); // Trả về số điểm làm tròn
+}
+
 // End Game
 function endGame() {
   clearInterval(timer);
-  calculateScore();
-}
-
-// Calculate Score
-function calculateScore() {
-  const totalQuestions = questions.length;
-  const correctAnswers = score; // Assuming 'score' holds the count of correct answers
-  const baseScore = (correctAnswers / totalQuestions) * maxScore; // Base score based on correct answers
-
-  // Calculate bonus based on time left
-  const timeBonus = (timeLeft / 30) * (maxScore * timeBonusFactor); // Max bonus is a portion of the total score
-
-  // Final score is base score plus time bonus, but capped at maxScore
-  let finalScore = Math.min(baseScore + timeBonus, maxScore);
-  finalScore = Math.round(finalScore); // Round to nearest integer
-
+  const finalScore = calculateFinalScore();
   if (finalScore === 100) {
     finalScoreDisplay.innerText = "Bạn đã hoàn thành trò chơi với điểm tuyệt đối!";
   } else {
     finalScoreDisplay.innerText = `Điểm của bạn: ${finalScore}`;
   }
-
   showScreen(endScreen);
 }
 
