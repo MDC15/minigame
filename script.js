@@ -21,107 +21,107 @@ let basePoints = 25;
 
 // Load Questions from JSON
 fetch('questions.json')
-  .then(response => response.json())
-  .then(questions => {
-    // Event Listeners
-    startButton.addEventListener('click', () => startGame(questions));
-    restartButton.addEventListener('click', () => restartGame(questions));
-  });
+    .then(response => response.json())
+    .then(questions => {
+        // Event Listeners
+        startButton.addEventListener('click', () => startGame(questions));
+        restartButton.addEventListener('click', () => restartGame(questions));
+    });
 
 // Start Game
 function startGame(questions) {
-  score = 0;
-  currentQuestionIndex = 0;
-  scoreDisplay.innerText = score;
-  showScreen(gameScreen);
-  loadQuestion(questions);
+    score = 0;
+    currentQuestionIndex = 0;
+    scoreDisplay.innerText = score;
+    showScreen(gameScreen);
+    loadQuestion(questions);
 }
 
 // Load Question
 function loadQuestion(questions) {
-  const currentQuestion = questions[currentQuestionIndex];
-  questionText.innerText = currentQuestion.question;
-  answerButtons.forEach((button, index) => {
-    button.innerText = currentQuestion.answers[index];
-    button.onclick = () => checkAnswer(questions, index);
-  });
-  resetTimer();
+    const currentQuestion = questions[currentQuestionIndex];
+    questionText.innerText = currentQuestion.question;
+    answerButtons.forEach((button, index) => {
+        button.innerText = currentQuestion.answers[index];
+        button.onclick = () => checkAnswer(questions, index);
+    });
+    resetTimer();
 }
 
 // Check Answer
 function checkAnswer(questions, selectedIndex) {
-  const correctIndex = questions[currentQuestionIndex].correct;
-  if (selectedIndex === correctIndex) {
-    score += basePoints;
-    // Award bonus points only if timeLeft is greater than 25 seconds
-    if (timeLeft > 25) {
-      const bonusPoints = Math.floor(Math.random() * 5);
-      score += bonusPoints;
-      showNotification(`Chính xác! Bạn nhận được ${basePoints + bonusPoints} điểm.`, 'success');
+    const correctIndex = questions[currentQuestionIndex].correct;
+    if (selectedIndex === correctIndex) {
+        score += basePoints;
+        // Award bonus points only if timeLeft is greater than 25 seconds
+        if (timeLeft > 25) {
+            const bonusPoints = Math.floor(Math.random() * 5);
+            score += bonusPoints;
+            showNotification(`Chính xác! Bạn nhận được ${basePoints + bonusPoints} điểm.`, 'success');
+        } else {
+            showNotification(`Chính xác! Bạn nhận được ${basePoints} điểm.`, 'success');
+        }
+        // Kiểm tra và giới hạn điểm tối đa là 100
+        score = Math.min(score, 100); // Giới hạn điểm tối đa là 100
+        scoreDisplay.innerText = score;
     } else {
-      showNotification(`Chính xác! Bạn nhận được ${basePoints} điểm.`, 'success');
+        showNotification("Sai rồi!", 'error');
     }
-    // Kiểm tra và giới hạn điểm tối đa là 100
-    score = Math.min(score, 100); // Giới hạn điểm tối đa là 100
-    scoreDisplay.innerText = score;
-  } else {
-    showNotification("Sai rồi!", 'error');
-  }
-  nextQuestion(questions);
+    nextQuestion(questions);
 }
 // Next Question or End Game
 function nextQuestion(questions) {
-  currentQuestionIndex++;
-  if (currentQuestionIndex < questions.length) {
-    loadQuestion(questions);
-  } else {
-    endGame();
-  }
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+        loadQuestion(questions);
+    } else {
+        endGame();
+    }
 }
 
 // Reset Timer
 function resetTimer() {
-  clearInterval(timer);
-  timeLeft = 30;
-  timeDisplay.innerText = timeLeft;
-  timer = setInterval(() => {
-    timeLeft--;
+    clearInterval(timer);
+    timeLeft = 30;
     timeDisplay.innerText = timeLeft;
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      showNotification("Hết giờ!", 'warning');
-      nextQuestion();
-    }
-  }, 1000);
+    timer = setInterval(() => {
+        timeLeft--;
+        timeDisplay.innerText = timeLeft;
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            showNotification("Hết giờ!", 'warning');
+            nextQuestion();
+        }
+    }, 1000);
 }
 
 // End Game
 function endGame() {
-  clearInterval(timer);
-  finalScoreDisplay.innerText = score;
-  showScreen(endScreen);
+    clearInterval(timer);
+    finalScoreDisplay.innerText = score;
+    showScreen(endScreen);
 }
 
 // Restart Game
 function restartGame(questions) {
-  startGame(questions);
+    startGame(questions);
 }
 
 // Show Screen
 function showScreen(screen) {
-  startScreen.classList.remove('active');
-  gameScreen.classList.remove('active');
-  endScreen.classList.remove('active');
-  screen.classList.add('active');
+    startScreen.classList.remove('active');
+    gameScreen.classList.remove('active');
+    endScreen.classList.remove('active');
+    screen.classList.add('active');
 }
 
 // Show Notification
 function showNotification(message, type) {
-  notification.innerText = message;
-  notification.classList.add(type);
-  notification.classList.add('active');
-  setTimeout(() => {
-    notification.classList.remove('active');
-    notification.classList.remove(type);
-  }, 2500);
+    notification.innerText = message;
+    notification.classList.add(type);
+    notification.classList.add('active');
+    setTimeout(() => {
+        notification.classList.remove('active');
+        notification.classList.remove(type);
+    }, 2500);
 }
