@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="start-screen" class="screen active">
+        <h1>Mini Game</h1>
+        <button id="start-btn">Bắt Đầu</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div class="game-container">
+            <div class="question">
+                <h2 id="question-text">Câu hỏi sẽ xuất hiện ở đây</h2>
+            </div>
+            <div class="answers">
+                <button class="answer-btn" id="answer1">Đáp án 1</button>
+                <button class="answer-btn" id="answer2">Đáp án 2</button>
+                <button class="answer-btn" id="answer3">Đáp án 3</button>
+                <button class="answer-btn" id="answer4">Đáp án 4</button>
+            </div>
+            <div class="timer">
+                <p>Thời gian còn lại: <span id="time-left">30</span> giây</p>
+            </div>
+            <div class="score">
+                <p>Điểm: <span id="score">0</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="end-screen" class="screen">
+        <h1>Kết thúc trò chơi!</h1>
+        <p id="text">Điểm của bạn: <span id="final-score">0</span></p>
+        <button id="restart-btn">Chơi Lại</button>
+    </div>
+
+    <div id="notification"></div>
+    <script src="script.js"></script>
+</body>
+
+</html>
