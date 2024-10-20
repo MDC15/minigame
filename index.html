@@ -4,16 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game</title>
+    <title>Quiz Game - Mini Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <audio id="background-music" src="./public//sounds//background-music.mp3" autoplay loop></audio>
+    <!-- Màn hình bắt đầu -->
     <div id="start-screen" class="screen active">
         <h1>Mini Game</h1>
+        <label for="name">Tên của bạn:</label>
+        <input type="text" id="name" required><br>
         <button id="start-btn">Bắt Đầu</button>
     </div>
 
+    <!-- Màn hình game -->
     <div id="game-screen" class="screen">
         <div class="game-container">
             <div class="question">
@@ -34,13 +39,16 @@
         </div>
     </div>
 
+    <!-- Màn hình kết thúc -->
     <div id="end-screen" class="screen">
         <h1>Kết thúc trò chơi!</h1>
-        <p id="text">Điểm của bạn: <span id="final-score">0</span></p>
+        <p>Điểm của bạn: <span id="final-score">0</span></p>
         <button id="restart-btn">Chơi Lại</button>
+        <button onclick="submitScore()">Gửi Điểm</button>
+        <button onclick="vieswRanking()">Xem Bảng Xếp Hạng</button>
+        <div class="ranking-list" id="rankingList"></div>
     </div>
 
-    <div id="notification"></div>
     <script src="script.js"></script>
 </body>
 

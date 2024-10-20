@@ -1,21 +1,23 @@
+/* Reset mặc định */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+/* Căn chỉnh tổng thể cho trang */
 body {
     font-family: 'Arial', sans-serif;
-    /* background-color: #f0f0f0; */
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     font-size: 18px;
     color: #333;
-    /* Màu chữ tối hơn, dễ nhìn hơn */
+    background-color: #f0f0f0;
 }
 
+/* Cấu trúc chung của các màn hình */
 .screen {
     background-color: #fff;
     border-radius: 15px;
@@ -31,20 +33,38 @@ body {
     display: block;
 }
 
+/* Tiêu đề và câu hỏi */
 h1 {
     color: #2c3e50;
     font-size: 3em;
-    /* Chữ tiêu đề lớn hơn, thu hút hơn */
     margin-bottom: 20px;
 }
 
 h2 {
     color: #34495e;
     font-size: 1.8em;
-    /* Chữ câu hỏi lớn hơn, dễ đọc hơn */
     margin-bottom: 20px;
 }
 
+label {
+    display: block;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    font-weight: bold;
+}
+
+input[type="text"] {
+    padding: 10px;
+    font-size: 1.2em;
+    border: 1px solid #171717;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 20px;
+}
+
+
+/* Nút điều khiển */
 button {
     background-color: #3498db;
     color: white;
@@ -60,6 +80,7 @@ button:hover {
     background-color: #2980b9;
 }
 
+/* Kết cấu câu hỏi và đáp án */
 .game-container {
     display: flex;
     flex-direction: column;
@@ -82,31 +103,26 @@ button:hover {
     text-align: left;
     padding: 15px;
     font-size: 1.1em;
-    /* Chữ đáp án lớn hơn, dễ đọc hơn */
     background-color: #294970;
-    /* Nền đáp án sáng hơn, bớt mỏi mắt */
+    color: white;
     border: 1px solid #ddd;
-    /* Viền đáp án nhẹ, phân biệt rõ ràng */
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .answer-btn:hover {
-    color: #fff;
     background-color: #3971a8;
-    /* Nền đáp án sáng hơn khi hover */
+    color: #fff;
 }
 
+/* Đếm giờ và điểm số */
 .timer,
 .score {
     font-size: 1.2em;
     margin-bottom: 15px;
 }
 
-#time-left {
-    font-size: 1.5em;
-    font-weight: bold;
-    color: #e74c3c;
-}
-
+#time-left,
 #final-score {
     font-size: 1.5em;
     font-weight: bold;
@@ -114,13 +130,27 @@ button:hover {
     padding-bottom: 15px;
 }
 
-#text {
-    font-weight: bold;
-    font-size: 1.6em;
-    padding-bottom: 2.5em;
+/* Form nhập tên người chơi */
+#player-form {
+    margin-bottom: 20px;
 }
 
-/* Styles for notification */
+#player-name {
+    padding: 10px;
+    font-size: 1.2em;
+    border: 2px solid #3498db;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 300px;
+}
+
+.error-message {
+    color: #e74c3c;
+    margin-top: 5px;
+    font-size: 0.9em;
+}
+
+/* Hiệu ứng thông báo */
 #notification {
     position: fixed;
     top: 10px;
@@ -132,7 +162,6 @@ button:hover {
     transition: opacity 0.3s ease-in-out;
     z-index: 100;
     font-size: 1.2em;
-    /* Chữ thông báo lớn hơn, dễ nhìn hơn */
 }
 
 #notification.success {
@@ -154,6 +183,58 @@ button:hover {
     opacity: 1;
 }
 
+/* Bảng xếp hạng */
+#ranking-table {
+    width: 100%;
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 20px 0;
+}
+
+#ranking-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#ranking-table th,
+#ranking-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+#ranking-table th {
+    background-color: #3498db;
+    color: white;
+    position: sticky;
+    top: 0;
+}
+
+#ranking-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+#ranking-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Nút điều khiển bổ sung */
+.button-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+#back-btn {
+    background-color: #95a5a6;
+}
+
+#back-btn:hover {
+    background-color: #7f8c8d;
+}
+
+/* Thiết kế responsive */
 @media (max-width: 600px) {
     body {
         font-size: 16px;
