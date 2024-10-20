@@ -1,215 +1,150 @@
-// DOM Elements
-const questionText = document.getElementById('question-text');
-const answerButtons = document.querySelectorAll('.answer-btn');
-const timeDisplay = document.getElementById('time-left');
-const scoreDisplay = document.getElementById('score');
-const finalScoreDisplay = document.getElementById('final-score');
-
-const startScreen = document.getElementById('start-screen');
-const gameScreen = document.getElementById('game-screen');
-const endScreen = document.getElementById('end-screen');
-const startButton = document.getElementById('start-btn');
-const restartButton = document.getElementById('restart-btn');
-const nameInput = document.getElementById('name');
-const rankingList = document.getElementById('rankingList');
-
-// Game Variables
 let currentQuestionIndex = 0;
 let score = 0;
 let timeLeft = 30;
 let timer;
-let basePoints = 25;
 let playerName = '';
 let questions = [];
+let startTime; // Biến để lưu thời gian bắt đầu trò chơi
 
 // Load Questions from API
-fetch('http://127.0.0.1:8081/questions')
+fetch('http://127.0.0.1:3080/questions')
     .then(response => response.json())
     .then(data => {
-        questions = data.questions; // Access the questions array inside the JSON
-        startButton.addEventListener('click', () => startGame());
-        restartButton.addEventListener('click', () => restartGame());
+        questions = data.questions;
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        document.getElementById('view-ranking-btn').addEventListener('click', viewRanking);
     })
-    .catch(error => {
-        console.error("Error loading questions:", error);
-        alert("Lỗi khi tải câu hỏi, vui lòng kiểm tra lại!");
-    });
+    .catch(error => alert("Lỗi khi tải câu hỏi, vui lòng kiểm tra lại!"));
 
 // Start Game
 function startGame() {
-    playerName = nameInput.value.trim();
-    if (playerName === "") {
-        alert("Vui lòng nhập tên của bạn!");
-        return;
-    }
+    playerName = document.getElementById('name').value.trim();
+    if (!playerName) return alert("Tên không hợp lệ!");
+
     score = 0;
     currentQuestionIndex = 0;
-    scoreDisplay.innerText = score;
-    showScreen(gameScreen);
+    timeLeft = 30;
+    startTime = Date.now(); // Ghi lại thời gian bắt đầu trò chơi
+
+    document.getElementById('start-screen').style.display = 'none'; // Ẩn màn hình bắt đầu
+    renderGameScreen();
     loadQuestion();
+}
+
+// Render Game Screen
+function renderGameScreen() {
+    document.getElementById('app').style.display = 'block'; // Hiện giao diện app
+    document.getElementById('app').innerHTML = `
+        <div id="game-screen" class="screen active">
+            <div class="game-container">
+                <div class="question">
+                    <h2 id="question-text">Câu hỏi sẽ xuất hiện ở đây</h2>
+                </div>
+                <div class="answers">
+                    ${[0, 1, 2, 3].map(i => `<button class="answer-btn" data-index="${i}">Đáp án ${i + 1}</button>`).join('')}
+                </div>
+                <div class="timer">
+                    <p>Thời gian còn lại: <span id="time-left">30</span> giây</p>
+                </div>
+                <div class="score">
+                    <p>Điểm: <span id="score">0</span></p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.querySelectorAll('.answer-btn').forEach(button => {
+        button.addEventListener('click', () => checkAnswer(button.dataset.index));
+    });
+
+    resetTimer();
 }
 
 // Load Question
 function loadQuestion() {
     const currentQuestion = questions[currentQuestionIndex];
-    questionText.innerText = currentQuestion.question;
-    answerButtons.forEach((button, index) => {
+    document.getElementById('question-text').innerText = currentQuestion.question;
+    document.querySelectorAll('.answer-btn').forEach((button, index) => {
         button.innerText = currentQuestion.options[index];
-        button.onclick = () => checkAnswer(index); // Attach click handler to check answer
     });
-    resetTimer();
 }
 
 // Check Answer
 function checkAnswer(selectedIndex) {
-    const correctIndex = parseInt(questions[currentQuestionIndex].correct_answer) - 1; // Adjust to zero-based index
-    if (selectedIndex === correctIndex) {
-        score += basePoints;
-        if (timeLeft > 25) {
-            const bonusPoints = Math.floor(Math.random() * 5);
-            score += bonusPoints;
-        }
-        scoreDisplay.innerText = score;
-        alert("Đáp án đúng! Điểm: " + score); // Thông báo đáp án đúng
-    } else {
-        alert("Đáp án sai! Điểm: " + score); // Thông báo đáp án sai
-    }
-
-    // Move to next question after short delay
-    setTimeout(() => {
-        nextQuestion();
-    }, 1000); // Delay to let the player see the feedback
+    const correctIndex = questions[currentQuestionIndex].correct_answer - 1;
+    score += (selectedIndex == correctIndex) ? (timeLeft > 25 ? Math.floor(Math.random() * 5) + 25 : 25) : 0;
+    document.getElementById('score').innerText = score;
+    alert(selectedIndex == correctIndex ? `Đáp án đúng! Điểm: ${score}` : `Đáp án sai! Điểm: ${score}`);
+    setTimeout(nextQuestion, 1000);
 }
 
 // Next Question or End Game
 function nextQuestion() {
-    currentQuestionIndex++;
-    if (currentQuestionIndex < questions.length) {
+    if (++currentQuestionIndex < questions.length) {
         loadQuestion();
     } else {
         endGame();
     }
 }
 
-// Reset Timer
+// Timer Functions
 function resetTimer() {
     clearInterval(timer);
     timeLeft = 30;
-    timeDisplay.innerText = timeLeft;
+    document.getElementById('time-left').innerText = timeLeft;
     timer = setInterval(() => {
-        timeLeft--;
-        timeDisplay.innerText = timeLeft;
-        if (timeLeft <= 0) {
+        if (--timeLeft <= 0) {
             clearInterval(timer);
-            setTimeout(() => {
-                nextQuestion(); // Automatically move to next question if time runs out
-            }, 1000);
+            alert("Thời gian đã hết!");
+            endGame();
         }
+        document.getElementById('time-left').innerText = timeLeft;
     }, 1000);
 }
 
-// End Game and Submit Score
+// End Game
 function endGame() {
     clearInterval(timer);
-    finalScoreDisplay.innerText = score;
-    showScreen(endScreen);
+    document.getElementById('final-score').innerText = score;
+    document.getElementById('end-screen').style.display = 'block'; // Hiện màn hình kết thúc
+    document.getElementById('app').style.display = 'none'; // Ẩn màn hình game
+    alert(`Kết thúc trò chơi! Điểm của bạn: ${score}`);
+
+    // Gửi dữ liệu điểm và tên người chơi lên server
+    submitScore();
 }
 
 // Submit Score to Server
 function submitScore() {
-    if (!playerName || score === undefined || timeLeft < 0) {
-        alert('Thông tin điểm không hợp lệ!');
-        return;
-    }
+    const timePlayed = Math.floor((Date.now() - startTime) / 1000); // Tính thời gian đã chơi (giây)
 
     const scoreData = {
         name: playerName,
         score: score,
-        time: timeLeft // Include time in the payload
+        time: timePlayed // Gửi thời gian đã chơi
     };
 
-    fetch('http://127.0.0.1:8081/submit-score', {
+    fetch('http://127.0.0.1:3080/submit-score', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(scoreData)
     })
         .then(response => {
             if (!response.ok) {
-                return response.json().then(errorData => {
-                    console.error('Response error:', errorData);
-                    throw new Error('Error submitting score: ' + errorData.message);
-                });
+                throw new Error('Lỗi khi gửi điểm');
             }
             return response.json();
         })
         .then(data => {
             alert('Điểm của bạn đã được gửi thành công!');
-            fetchRanking(); // Fetch ranking after score submission
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Đã xảy ra lỗi khi gửi điểm!');
+            alert('Đã xảy ra lỗi khi gửi điểm: ' + error.message);
         });
 }
 
-// Fetch Ranking from Server
-function fetchRanking() {
-    fetch('http://127.0.0.1:8081/ranking')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error fetching ranking');
-            }
-            return response.json();
-        })
-        .then(rankingData => {
-            displayRanking(rankingData);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Đã xảy ra lỗi khi lấy bảng xếp hạng!');
-        });
-}
-
-// Display Ranking
-function displayRanking(rankingData) {
-    rankingList.innerHTML = ''; // Clear previous ranking data
-
-    if (rankingData.length === 0) {
-        const message = document.createElement('p');
-        message.textContent = 'Chưa có dữ liệu bảng xếp hạng!';
-        rankingList.appendChild(message);
-        return;
-    }
-
-    const table = document.createElement('table');
-    const headerRow = table.insertRow();
-    headerRow.insertCell().textContent = 'Hạng';
-    headerRow.insertCell().textContent = 'Tên';
-    headerRow.insertCell().textContent = 'Điểm';
-    headerRow.insertCell().textContent = 'Thời gian còn lại';
-
-    rankingData.forEach((player, index) => {
-        const row = table.insertRow();
-        row.insertCell().textContent = index + 1; // Rank
-        row.insertCell().textContent = player.name; // Player's Name
-        row.insertCell().textContent = player.score; // Player's Score
-        row.insertCell().textContent = player.time; // Player's Remaining Time
-    });
-
-    rankingList.appendChild(table);
-}
-
-// Restart Game
-function restartGame() {
-    startGame();
-}
-
-// Show Screen
-function showScreen(screen) {
-    startScreen.classList.remove('active');
-    gameScreen.classList.remove('active');
-    endScreen.classList.remove('active');
-    screen.classList.add('active');
+// View Ranking
+function viewRanking() {
+    window.open('http://localhost:8501', '_blank'); // Mở bảng xếp hạng trong tab mới
 }
