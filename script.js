@@ -7,7 +7,7 @@ let questions = [];
 let startTime; // Biến để lưu thời gian bắt đầu trò chơi
 
 // Load Questions from API
-fetch('http://127.0.0.1:3080/questions')
+fetch('https://serverquizapis-gvqxqkov76pqp3qpxaey97.streamlit.app//questions')
     .then(response => response.json())
     .then(data => {
         questions = data.questions;
@@ -124,7 +124,7 @@ function submitScore() {
         time: timePlayed // Gửi thời gian đã chơi
     };
 
-    fetch('http://127.0.0.1:3080/submit-score', {
+    fetch('https://serverquizapis-gvqxqkov76pqp3qpxaey97.streamlit.app/submit-score', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(scoreData)
@@ -146,5 +146,5 @@ function submitScore() {
 
 // View Ranking
 function viewRanking() {
-    window.open('http://localhost:8501', '_blank'); // Mở bảng xếp hạng trong tab mới
+    window.open('https://serverquizapis-gvqxqkov76pqp3qpxaey97.streamlit.app/', '_blank'); // Mở bảng xếp hạng trong tab mới
 }
